@@ -10,8 +10,9 @@ import { Octokit } from "octokit";
 
 function App() {
   const [allEvents, setAllEvents] = useState();
+  const githubToken = process.env.REACT_APP_GITHUB_TOKEN;
   const octokit = new Octokit({
-    auth: "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",
+    auth: `token ${githubToken}`,
   });
   function removeTime(date = new Date()) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
