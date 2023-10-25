@@ -11,7 +11,7 @@ import { Octokit } from "octokit";
 function App() {
   const [allEvents, setAllEvents] = useState();
   const octokit = new Octokit({
-    auth: "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",
+    auth: "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",
   });
   function removeTime(date = new Date()) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
