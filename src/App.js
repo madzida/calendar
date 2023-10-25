@@ -1,67 +1,55 @@
-import React, { useState } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import React, { useState, useEffect } from "react";
+//import { Calendar, momentLocalizer } from "react-big-calendar";
+import Calendar from "./Calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import "./App.css";
 import moment from "moment";
+import { Octokit } from "octokit";
 
-const localizer = momentLocalizer(moment);
-
-const events = [
-  {
-    title: "Big Meeting",
-    allDay: true,
-    start: new Date(2021, 6, 0),
-    end: new Date(2021, 6, 0),
-  },
-  {
-    title: "Vacation",
-    start: new Date(2021, 6, 7),
-    end: new Date(2021, 6, 10),
-  },
-  {
-    title: "Conference",
-    start: new Date(2021, 6, 20),
-    end: new Date(2021, 6, 23),
-  },
-];
+//const localizer = momentLocalizer(moment);
 
 function App() {
-  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
-  const [allEvents, setAllEvents] = useState(events);
-
-  function handleAddEvent() {
-    for (let i = 0; i < allEvents.length; i++) {
-      const d1 = new Date(allEvents[i].start);
-      const d2 = new Date(newEvent.start);
-      const d3 = new Date(allEvents[i].end);
-      const d4 = new Date(newEvent.end);
-      /*
-          console.log(d1 <= d2);
-          console.log(d2 <= d3);
-          console.log(d1 <= d4);
-          console.log(d4 <= d3);
-            */
-
-      if ((d1 <= d2 && d2 <= d3) || (d1 <= d4 && d4 <= d3)) {
-        alert("CLASH");
-        break;
-      }
-    }
-
-    setAllEvents([...allEvents, newEvent]);
+  const [allEvents, setAllEvents] = useState();
+  const octokit = new Octokit({
+    auth: "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",
+  });
+  function removeTime(date = new Date()) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
+  let list = [];
+  useEffect(() => {
+    console.log(allEvents);
+  }, [allEvents]);
+
+  useEffect(() => {
+    async function getRest() {
+      const result = await octokit.request(
+        "GET /repos/{owner}/{repo}/commits",
+        {
+          owner: "madzida",
+          repo: "calendar",
+          headers: {
+            "X-GitHub-Api-Version": "2022-11-28",
+          },
+        }
+      );
+      for (let i = 0; i < result.data.length; i++) {
+        list[i] = {
+          author: result.data[i].commit.author.name,
+          email: result.data[i].commit.author.email,
+          title: result.data[i].commit.message,
+          start: removeTime(new Date(result.data[i].commit.committer.date)),
+          end: removeTime(new Date(result.data[i].commit.committer.date)),
+        };
+      }
+      setAllEvents(list);
+    }
+    getRest();
+  }, []);
 
   return (
     <div className="App">
-      <Calendar
-        localizer={localizer}
-        events={allEvents}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 500, margin: "50px" }}
-      />
+      <Calendar event={allEvents} />
     </div>
   );
 }
