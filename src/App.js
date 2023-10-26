@@ -5,14 +5,21 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./App.css";
 import moment from "moment";
 import { Octokit } from "octokit";
+import * as CryptoJS from "crypto-js";
 
 //const localizer = momentLocalizer(moment);
 
 function App() {
   const [allEvents, setAllEvents] = useState();
-  const githubToken = process.env.REACT_APP_GITHUB_TOKEN;
+
+  const bytes = CryptoJS.AES.decrypt(
+    "U2FsdGVkX18+/gD+gcxgkAs8nqvAnfhcX7StUdOSvA/Vp4R+YCqDylRpK6gdUZ8wo01WJ72LJnx8DY/BNQNSkw==",
+    "12345"
+  );
+  const plainText = bytes.toString(CryptoJS.enc.Utf8);
+  console.log(plainText);
   const octokit = new Octokit({
-    auth: `token ${githubToken}`,
+    auth: `token ${plainText}`,
   });
   function removeTime(date = new Date()) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
