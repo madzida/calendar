@@ -17,6 +17,7 @@ function App() {
     "12345"
   );
   const plainText = bytes.toString(CryptoJS.enc.Utf8);
+  //enkodirala sam token, jer mi ga je brisalo pri push-anju na github, pa sam samo dekodirala u kodu
   console.log(plainText);
   const octokit = new Octokit({
     auth: `token ${plainText}`,
